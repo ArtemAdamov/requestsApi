@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
 class Client
@@ -17,16 +18,24 @@ class Client
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(["application"])]
     private ?string $address = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(["application"])]
     private ?string $tel = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Groups(["application"])]
     private ?\DateTimeInterface $birthday = null;
 
     #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Application::class)]
     private Collection $applications;
+
+
+    #[ORM\OneToOne(inversedBy: 'client', targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user;
 
     public function __construct()
     {
@@ -99,6 +108,23 @@ class Client
             if ($application->getCreator() === $this) {
                 $application->setCreator(null);
             }
+        }
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(User $user): self
+    {
+        $this->user = $user;
+
+        // set the owning side of the relation if necessary
+        if ($user->getClient() !== $this) {
+            $user->setClient($this);
         }
 
         return $this;

@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\ApplicationRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ApplicationRepository::class)]
 class Application
@@ -14,15 +15,19 @@ class Application
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(["application"])]
     private ?string $title = null;
 
     #[ORM\Column]
+    #[Groups(["application"])]
     private ?\DateTimeImmutable $created_at = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(["application"])]
     private ?string $attachment = null;
 
     #[ORM\ManyToOne(inversedBy: 'applications')]
+    #[Groups(["application"])]
     private ?Client $creator = null;
 
     public function getId(): ?int
@@ -49,6 +54,8 @@ class Application
 
     public function setCreatedAt(\DateTimeImmutable $created_at): self
     {
+        // @ORM\HasLifecycleCallbacks()
+        //
         $this->created_at = $created_at;
 
         return $this;

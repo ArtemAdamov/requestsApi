@@ -15,11 +15,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class ApplicationController extends AbstractController
 {
 
-    #[Route('/applications/create', name: 'create_application', methods: 'POST')]
+    #[Route('/api/applications', name: 'create_application', methods: 'POST')]
     public function create(Request $request, SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $entityManager): JsonResponse
     {
-        // here is jwt required
-//        $this->denyAccessUnlessGranted('ROLE_CLIENT');
 
         $applicationData = $request->getContent();
         $application = $serializer->deserialize($applicationData, Application::class, 'json');
@@ -30,18 +28,18 @@ class ApplicationController extends AbstractController
             return new JsonResponse(['error' => $errorsString], Response::HTTP_BAD_REQUEST);
         }
 
-        $user = $this->getUser();
-        $application->setClient($user);
-
+        $client = $this->getUser()->getClient();
+        $application->setCreator($client);
+        $application->setCreatedAt(new \DateTimeImmutable());
         try {
             $entityManager->persist($application);
             $entityManager->flush();
-        } catch (\Exception $e) {
-            return new JsonResponse(['error' => $e], Response::HTTP_CONFLICT);
+        } catch (\Throwable $e) {
+            return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_CONFLICT);
         }
 
-        $responseContent = $serializer->serialize($application, 'json');
-        return new JsonResponse([$responseContent, Response::HTTP_CREATED, [], true]);
+        $responseContent = $serializer->serialize($application, 'json', ['groups' => 'application']);
+        return new JsonResponse($responseContent, Response::HTTP_CREATED, [], true);
     }
 
     /**

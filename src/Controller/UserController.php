@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class UserController extends AbstractController
 {
-    #[Route('/api/register', name: 'register', methods: 'POST')]
+    #[Route('/register', name: 'register', methods: 'POST')]
     public function register(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -43,7 +43,7 @@ class UserController extends AbstractController
         return new JsonResponse(['message' => 'Client registered successfully'], Response::HTTP_CREATED);
     }
 
-    #[Route('/api/login_check', name: 'login', methods: 'POST')]
+    #[Route('/login_check', name: 'login', methods: 'POST')]
     public function login(): Response
     {
         // этот метод никогда не будет вызван, так как его перехватывает json_login
