@@ -2,6 +2,7 @@
 ###> symfony/framework-bundle ###
 /.idea
 /public/.htaccess
+/public/uploads
 /.htaccess
 /.env.local
 /.env.local.php
