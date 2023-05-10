@@ -42,7 +42,7 @@ class ApplicationController extends AbstractController
             items: new OA\Items('fileUrl')
         )
     )]
-    public function upload(Request $request,  SerializerInterface $serializer): JsonResponse
+    public function upload(Request $request): JsonResponse
     {
         $uploadedFile = $request->files->get('attachment');
         if (!$uploadedFile) {
