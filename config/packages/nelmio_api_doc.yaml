@@ -1,0 +1,15 @@
+nelmio_api_doc:
+    use_validation_groups: true
+    documentation:
+        info:
+            title: Requests API
+            description: API for clients to create applications
+            version: 1.0.0
+        components:
+            securitySchemes:
+                Bearer:
+                    type: http
+                    scheme: lexik_jwt_authentication
+    areas: # to filter documented areas
+        path_patterns:
+            - ^/api(?!/doc$) # Accepts routes under /api except /api/doc

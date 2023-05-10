@@ -4,8 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Application;
 use App\Entity\Client;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpFoundation\File\File;
 use App\Repository\ApplicationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use OpenApi\Attributes as OA;
 
 class ApplicationController extends AbstractController
 {
@@ -25,6 +26,22 @@ class ApplicationController extends AbstractController
     }
 
     #[Route('/api/applications/attachment', name: 'upload_attachment', methods: 'POST')]
+    #[OA\Response(
+        response: 400,
+        description: "No attachment provided"
+    )]
+    #[OA\Response(
+        response: 500,
+        description: "Server error when saving the attachment"
+    )]
+    #[OA\Response(
+        response: 201,
+        description: 'Returns the created application',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items('fileUrl')
+        )
+    )]
     public function upload(Request $request,  SerializerInterface $serializer): JsonResponse
     {
         $uploadedFile = $request->files->get('attachment');
@@ -44,7 +61,24 @@ class ApplicationController extends AbstractController
         return new JsonResponse(['fileUrl' => '/uploads/' . $filename], Response::HTTP_CREATED);
 
     }
+
     #[Route('/api/applications', name: 'create_application', methods: 'POST')]
+    #[OA\Response(
+        response: 400,
+        description: "Request validated with error"
+    )]
+    #[OA\Response(
+        response: 409,
+        description: "Server could not create the application"
+    )]
+    #[OA\Response(
+        response: 201,
+        description: 'Returns the created application',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Application::class, groups: ['application']))
+        )
+    )]
     public function create(Request $request, SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $entityManager): JsonResponse
     {
         $applicationData = $request->getContent();
@@ -72,6 +106,18 @@ class ApplicationController extends AbstractController
     }
 
     #[Route('/api/applications', name: 'list_applications', methods: 'GET')]
+    #[OA\Response(
+        response: 500,
+        description: "Internal server error"
+    ),]
+    #[OA\Response(
+        response: 200,
+        description: 'Returns the list of application',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Application::class, groups: ['application']))
+        )
+    )]
     public function list(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager): JsonResponse
     {
         $page = max(1, $request->query->getInt('page', 1));
@@ -103,6 +149,18 @@ class ApplicationController extends AbstractController
     }
 
     #[Route('/api/applications/{id}', name: 'get_application', methods: 'GET')]
+    #[OA\Response(
+        response: 404,
+        description: "Application not found"
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Returns application',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Application::class, groups: ['application']))
+        )
+    )]
     public function read(int $id, ApplicationRepository $repository, SerializerInterface $serializer): JsonResponse
     {
         $client = $this->getClient();
@@ -117,6 +175,26 @@ class ApplicationController extends AbstractController
     }
 
     #[Route('/api/applications/{id}', name: 'update_application', methods: 'PUT')]
+    #[OA\Response(
+        response: 400,
+        description: "Request validated with error"
+    )]
+    #[OA\Response(
+        response: 404,
+        description: "Application not found"
+    )]
+    #[OA\Response(
+        response: 409,
+        description: "Server could not update the application"
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Returns application',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Application::class, groups: ['application']))
+        )
+    )]
     public function update(Request $request, ApplicationRepository $repository, SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $entityManager): JsonResponse
     {
         $client = $this->getClient();
@@ -147,6 +225,18 @@ class ApplicationController extends AbstractController
     }
 
     #[Route('/api/applications/{id}', name: 'delete_application', methods: 'DELETE')]
+    #[OA\Response(
+        response: 404,
+        description: "Application not found"
+    )]
+    #[OA\Response(
+        response: 409,
+        description: "Server could not delete the application"
+    )]
+    #[OA\Response(
+        response: 204,
+        description: "Application deleted successfully"
+    )]
     public function delete(Request $request, ApplicationRepository $repository, EntityManagerInterface $entityManager): JsonResponse
     {
         $client = $this->getClient();

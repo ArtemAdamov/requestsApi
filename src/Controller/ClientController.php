@@ -11,10 +11,23 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use OpenApi\Attributes as OA;
 
 class ClientController extends AbstractController
 {
     #[Route('/api/clients', name: 'create_client', methods: ['POST'])]
+    #[OA\Response(
+        response: 400,
+        description: "Bad request"
+    )]
+    #[OA\Response(
+        response: 409,
+        description: "Client could not be created"
+    )]
+    #[OA\Response(
+        response: 201,
+        description: 'Client created successfully',
+    )]
     public function createClient(Request $request, SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $entityManager): JsonResponse
     {
         $data = $request->getContent();
