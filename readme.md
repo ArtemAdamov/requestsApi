@@ -31,8 +31,23 @@ make start
 # Использование
 RequestsAPI работает посредством API, предоставляя конечные точки для обработки заявок. Полная документация API доступна по адресу /api/doc.json в приложении.
 
+# Регистрация
+```bash
+/register
+"email" => "",
+"password" => "password"
+/login_check
+"email" => "",
+"password" => "password"
+```
+получить jwt токен, использовать как bearer token использовать его при запросах к /api
 # Тестирование
 Для запуска тестов используйте следующую команду:
 ```bash
 docker-compose exec app php bin/phpunit
 ```
+
+# TODO list
+1) swagger не показывает json body
+2) unit test только один
+3) phpstan внедрить
